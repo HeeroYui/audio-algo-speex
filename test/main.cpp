@@ -79,11 +79,11 @@ float performanceResamplerStepFloat(float _sampleRateIn, float _sampleRateOut, i
 	APPL_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " float");
 	Performance perfo;
 	audio::algo::speex::Resampler algo;
-	algo.init(1, _sampleRateIn, _sampleRateOut, _quality);
+	algo.init(1, _sampleRateIn, _sampleRateOut, _quality, audio::format_float);
 	for (int32_t iii=0; iii<1024; ++iii) {
 		perfo.tic();
 		size_t sizeOut = output.size();
-		algo.process(&output[0], sizeOut, &input[0], input.size(), audio::format_float);
+		algo.process(&output[0], sizeOut, &input[0], input.size());
 		perfo.toc();
 		usleep(1000);
 	}
@@ -119,11 +119,11 @@ float performanceResamplerStepI16(float _sampleRateIn, float _sampleRateOut, int
 	APPL_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " int16_t");
 	Performance perfo;
 	audio::algo::speex::Resampler algo;
-	algo.init(1, _sampleRateIn, _sampleRateOut, _quality);
+	algo.init(1, _sampleRateIn, _sampleRateOut, _quality, audio::format_int16);
 	for (int32_t iii=0; iii<1024; ++iii) {
 		perfo.tic();
 		size_t sizeOut = output.size();
-		algo.process(&output[0], sizeOut, &input[0], input.size(), audio::format_int16);
+		algo.process(&output[0], sizeOut, &input[0], input.size());
 		perfo.toc();
 		usleep(1000);
 	}
@@ -247,7 +247,7 @@ int main(int _argc, const char** _argv) {
 		
 		Performance perfo;
 		audio::algo::speex::Resampler algo;
-		algo.init(nbChan, sampleRateIn, sampleRateOut, quality);
+		algo.init(nbChan, sampleRateIn, sampleRateOut, quality, audio::format_int16);
 		int32_t lastPourcent = -1;
 		size_t outputPosition = 0;
 		for (int32_t iii=0; iii<inputData.size()/blockSize; ++iii) {
@@ -259,7 +259,7 @@ int main(int _argc, const char** _argv) {
 			}
 			size_t availlableSize = (output.size() - outputPosition) / nbChan;
 			perfo.tic();
-			algo.process(&output[outputPosition], availlableSize, &inputData[iii*blockSize], blockSize, audio::format_int16);
+			algo.process(&output[outputPosition], availlableSize, &inputData[iii*blockSize], blockSize);
 			if (perf == true) {
 				perfo.toc();
 				usleep(1000);

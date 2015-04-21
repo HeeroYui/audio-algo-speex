@@ -11,20 +11,14 @@
 #include <etk/types.h>
 #include <audio/format.h>
 #include <etk/chrono.h>
+#include <etk/memory.h>
 #include <vector>
-#ifdef HAVE_SPEEX_DSP
-	#include <speex/speex_resampler.h>
-#endif
 
 namespace audio {
 	namespace algo {
 		namespace speex {
+			class ResamplerPrivate;
 			class Resampler {
-				protected:
-					#ifdef HAVE_SPEEX_DSP
-						SpeexResamplerState* m_speexResampler;
-					#endif
-					bool m_isConfigured;
 				public:
 					Resampler();
 					virtual ~Resampler();
@@ -35,8 +29,9 @@ namespace audio {
 					 * @param[in] _inputSampleRate Input sample rate.
 					 * @param[in] _outputSampleRate Output sample rate.
 					 * @param[in] _quality Resampler quality [1..10].
+					 * @param[in] _format Input/output data format.
 					 */
-					virtual void init(int8_t _nbChannel, float _inputSampleRate, float _outputSampleRate, int8_t _quality);
+					virtual void init(int8_t _nbChannel, float _inputSampleRate, float _outputSampleRate, int8_t _quality=4, enum audio::format _format = audio::format_float);
 					/**
 					 * @brief Get list of format suported in input.
 					 * @return list of supported format
@@ -54,9 +49,10 @@ namespace audio {
 					 * @param[in] _input Input data.
 					 * @param[in] _nbChunk Number of chunk in the input buffer.
 					 * @param[in] _nbChannel Number of channel in the stream.
-					 * @param[in] _format Input data format.
 					 */
-					virtual void process(void* _output, size_t& _nbChunkOut, const void* _input, size_t _nbChunk, enum audio::format _format = audio::format_float);
+					virtual void process(void* _output, size_t& _nbChunkOut, const void* _input, size_t _nbChunk);
+				protected:
+					std11::shared_ptr<ResamplerPrivate> m_private; // private data.
 			};
 		}
 	}

@@ -15,7 +15,7 @@ def create(target):
 		])
 	myModule.add_module_depend(['etk', 'audio'])
 	
-	myModule.add_optionnal_module_depend('speexdsp', "HAVE_SPEEX_DSP", True)
+	myModule.add_optionnal_module_depend('speexdsp', "HAVE_SPEEX_DSP")
 	
 	myModule.add_export_path(tools.get_current_path(__file__))
 	# return module
