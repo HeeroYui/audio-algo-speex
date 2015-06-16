@@ -7,7 +7,7 @@ def get_desc():
 
 
 def create(target):
-	myModule = module.Module(__file__, 'audi-algo-speex', 'LIBRARY')
+	myModule = module.Module(__file__, 'audio-algo-speex', 'LIBRARY')
 	myModule.add_src_file([
 		'audio/algo/speex/debug.cpp',
 		'audio/algo/speex/Resampler.cpp'
