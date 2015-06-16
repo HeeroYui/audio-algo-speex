@@ -11,6 +11,7 @@ os:
 before_script: 
   - cd ..
   - git clone https://github.com/generic-library/gtest-lutin.git --recursive
+  - git clone https://github.com/generic-library/z-lutin.git --recursive
   - git clone https://github.com/generic-library/speex-dsp-lutin.git --recursive
   - git clone https://github.com/atria-soft/etk.git
   - git clone https://github.com/musicdsp/audio.git
