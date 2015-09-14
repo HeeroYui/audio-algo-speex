@@ -10,8 +10,8 @@
 
 #include <etk/types.h>
 #include <audio/format.h>
-#include <etk/chrono.h>
-#include <etk/memory.h>
+#include <chrono>
+#include <memory>
 #include <vector>
 
 namespace audio {

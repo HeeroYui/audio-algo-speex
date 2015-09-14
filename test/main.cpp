@@ -8,7 +8,7 @@
 #include <etk/etk.h>
 #include <audio/algo/speex/Resampler.h>
 #include <etk/os/FSNode.h>
-#include <etk/chrono.h>
+#include <chrono>
 
 #include <unistd.h>
 #undef __class__
