@@ -7,13 +7,13 @@ def get_desc():
 
 
 def create(target):
-	myModule = module.Module(__file__, 'audio-algo-speex-test', 'BINARY')
-	myModule.add_src_file([
+	my_module = module.Module(__file__, 'audio-algo-speex-test', 'BINARY')
+	my_module.add_src_file([
 		'test/main.cpp',
 		'test/debug.cpp'
 		])
-	myModule.add_module_depend(['audio-algo-speex'])
-	return myModule
+	my_module.add_module_depend(['audio-algo-speex'])
+	return my_module
 
 
 

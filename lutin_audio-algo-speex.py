@@ -7,23 +7,23 @@ def get_desc():
 
 
 def create(target):
-	myModule = module.Module(__file__, 'audio-algo-speex', 'LIBRARY')
-	myModule.add_src_file([
+	my_module = module.Module(__file__, 'audio-algo-speex', 'LIBRARY')
+	my_module.add_src_file([
 		'audio/algo/speex/debug.cpp',
 		'audio/algo/speex/Resampler.cpp'
 		])
 	
-	myModule.add_header_file([
+	my_module.add_header_file([
 		'audio/algo/speex/Resampler.h'
 		])
 	
-	myModule.add_module_depend(['etk', 'audio'])
+	my_module.add_module_depend(['etk', 'audio'])
 	
-	myModule.add_optionnal_module_depend('speex-dsp', ["c++", "-DHAVE_SPEEX_DSP"])
+	my_module.add_optionnal_module_depend('speex-dsp', ["c++", "-DHAVE_SPEEX_DSP"])
 	
-	myModule.add_path(tools.get_current_path(__file__))
+	my_module.add_path(tools.get_current_path(__file__))
 	# return module
-	return myModule
+	return my_module
 
 
 
