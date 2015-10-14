@@ -4,7 +4,7 @@
  * @license APACHE v2.0 (see license file)
  */
 
-#include <test/debug.h>
+#include <test-debug/debug.h>
 #include <etk/etk.h>
 #include <audio/algo/speex/Resampler.h>
 #include <etk/os/FSNode.h>
@@ -76,7 +76,7 @@ float performanceResamplerStepFloat(float _sampleRateIn, float _sampleRateOut, i
 			}
 		}
 	}
-	APPL_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " float");
+	TEST_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " float");
 	Performance perfo;
 	audio::algo::speex::Resampler algo;
 	algo.init(1, _sampleRateIn, _sampleRateOut, _quality, audio::format_float);
@@ -87,15 +87,15 @@ float performanceResamplerStepFloat(float _sampleRateIn, float _sampleRateOut, i
 		perfo.toc();
 		usleep(1000);
 	}
-	APPL_INFO("    blockSize=" << input.size() << " sample");
-	APPL_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
+	TEST_INFO("    blockSize=" << input.size() << " sample");
+	TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
 	                                  << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << "ns < "
 	                                  << perfo.getMaxProcessing().count() << "ns ");
 	float avg = (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRate)/double(input.size()))/1000000000.0)*100.0;
-	APPL_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "% < "
+	TEST_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "% < "
 	                                  << avg << "% < "
 	                                  << (float((perfo.getMaxProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "%");
-	APPL_PRINT("float : " << _sampleRateIn << " -> " << _sampleRateOut << " quality=" << int32_t(_quality) << " : " << avg << "%");
+	TEST_PRINT("float : " << _sampleRateIn << " -> " << _sampleRateOut << " quality=" << int32_t(_quality) << " : " << avg << "%");
 	return avg;
 }
 
@@ -116,7 +116,7 @@ float performanceResamplerStepI16(float _sampleRateIn, float _sampleRateOut, int
 			}
 		}
 	}
-	APPL_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " int16_t");
+	TEST_INFO("Start Resampler performance ... " << _sampleRateIn << " -> " << _sampleRateOut << " int16_t");
 	Performance perfo;
 	audio::algo::speex::Resampler algo;
 	algo.init(1, _sampleRateIn, _sampleRateOut, _quality, audio::format_int16);
@@ -127,15 +127,15 @@ float performanceResamplerStepI16(float _sampleRateIn, float _sampleRateOut, int
 		perfo.toc();
 		usleep(1000);
 	}
-	APPL_INFO("    blockSize=" << input.size() << " sample");
-	APPL_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
+	TEST_INFO("    blockSize=" << input.size() << " sample");
+	TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
 	                                  << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << "ns < "
 	                                  << perfo.getMaxProcessing().count() << "ns ");
 	float avg = (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRate)/double(input.size()))/1000000000.0)*100.0;
-	APPL_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "% < "
+	TEST_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "% < "
 	                                  << avg << "% < "
 	                                  << (float((perfo.getMaxProcessing().count()*sampleRate)/double(input.size()))/1000000000.0)*100.0 << "%");
-	APPL_PRINT("int16_t : " << _sampleRateIn << " -> " << _sampleRateOut << " quality=" << int32_t(_quality) << " : " << avg << "%");
+	TEST_PRINT("int16_t : " << _sampleRateIn << " -> " << _sampleRateOut << " quality=" << int32_t(_quality) << " : " << avg << "%");
 	return avg;
 }
 
@@ -209,18 +209,18 @@ int main(int _argc, const char** _argv) {
 			quality = etk::string_to_int32_t(data);
 		} else if (    data == "-h"
 		            || data == "--help") {
-			APPL_PRINT("Help : ");
-			APPL_PRINT("    ./xxx --fb=file.raw --mic=file.raw");
-			APPL_PRINT("        --in=YYY.raw            input file");
-			APPL_PRINT("        --out=zzz.raw           output file");
-			APPL_PRINT("        --performance           Generate signal to force algo to maximum process time");
-			APPL_PRINT("        --perf                  Enable performence test (little slower but real performence test)");
-			APPL_PRINT("        --test=XXXX             some test availlable ...");
-			APPL_PRINT("            RESAMPLING          Test resampling data 16 bit mode");
-			APPL_PRINT("                --sample-rate-in=XXXX   Input signal sample rate (default 48000)");
-			APPL_PRINT("                --sample-rate-out=XXXX  Output signal sample rate (default 48000)");
-			APPL_PRINT("                --quality=XX            Resampling quality [0..10] (default 4)");
-			APPL_PRINT("                --nb=XX                 Number of channel in the file (default 1)");
+			TEST_PRINT("Help : ");
+			TEST_PRINT("    ./xxx --fb=file.raw --mic=file.raw");
+			TEST_PRINT("        --in=YYY.raw            input file");
+			TEST_PRINT("        --out=zzz.raw           output file");
+			TEST_PRINT("        --performance           Generate signal to force algo to maximum process time");
+			TEST_PRINT("        --perf                  Enable performence test (little slower but real performence test)");
+			TEST_PRINT("        --test=XXXX             some test availlable ...");
+			TEST_PRINT("            RESAMPLING          Test resampling data 16 bit mode");
+			TEST_PRINT("                --sample-rate-in=XXXX   Input signal sample rate (default 48000)");
+			TEST_PRINT("                --sample-rate-out=XXXX  Output signal sample rate (default 48000)");
+			TEST_PRINT("                --quality=XX            Resampling quality [0..10] (default 4)");
+			TEST_PRINT("                --nb=XX                 Number of channel in the file (default 1)");
 			
 			exit(0);
 		}
@@ -231,14 +231,14 @@ int main(int _argc, const char** _argv) {
 		return 0;
 	}
 	if (test == "RESAMPLING") {
-		APPL_INFO("Start resampling test ... ");
+		TEST_INFO("Start resampling test ... ");
 		if (inputName == "") {
-			APPL_ERROR("Can not Process missing parameters...");
+			TEST_ERROR("Can not Process missing parameters...");
 			exit(-1);
 		}
-		APPL_INFO("Read input:");
+		TEST_INFO("Read input:");
 		std::vector<int16_t> inputData = etk::FSNodeReadAllDataType<int16_t>(inputName);
-		APPL_INFO("    " << inputData.size() << " samples");
+		TEST_INFO("    " << inputData.size() << " samples");
 		// resize output :
 		std::vector<int16_t> output;
 		output.resize(inputData.size()*sampleRateOut/sampleRateIn+5000, 0);
@@ -253,9 +253,9 @@ int main(int _argc, const char** _argv) {
 		for (int32_t iii=0; iii<inputData.size()/blockSize; ++iii) {
 			if (lastPourcent != 100*iii / (inputData.size()/blockSize)) {
 				lastPourcent = 100*iii / (inputData.size()/blockSize);
-				APPL_INFO("Process : " << iii*blockSize << "/" << int32_t(inputData.size()/blockSize)*blockSize << " " << lastPourcent << "/100");
+				TEST_INFO("Process : " << iii*blockSize << "/" << int32_t(inputData.size()/blockSize)*blockSize << " " << lastPourcent << "/100");
 			} else {
-				APPL_VERBOSE("Process : " << iii*blockSize << "/" << int32_t(inputData.size()/blockSize)*blockSize);
+				TEST_VERBOSE("Process : " << iii*blockSize << "/" << int32_t(inputData.size()/blockSize)*blockSize);
 			}
 			size_t availlableSize = (output.size() - outputPosition) / nbChan;
 			perfo.tic();
@@ -267,15 +267,15 @@ int main(int _argc, const char** _argv) {
 			outputPosition += availlableSize*nbChan;
 		}
 		if (perf == true) {
-			APPL_INFO("Performance Result: ");
-			APPL_INFO("    blockSize=" << blockSize << " sample");
-			APPL_INFO("    min=" << perfo.getMinProcessing().count() << " ns");
-			APPL_INFO("    max=" << perfo.getMaxProcessing().count() << " ns");
-			APPL_INFO("    avg=" << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << " ns");
+			TEST_INFO("Performance Result: ");
+			TEST_INFO("    blockSize=" << blockSize << " sample");
+			TEST_INFO("    min=" << perfo.getMinProcessing().count() << " ns");
+			TEST_INFO("    max=" << perfo.getMaxProcessing().count() << " ns");
+			TEST_INFO("    avg=" << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << " ns");
 			
-			APPL_INFO("    min=" << (float((perfo.getMinProcessing().count()*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
-			APPL_INFO("    max=" << (float((perfo.getMaxProcessing().count()*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
-			APPL_INFO("    avg=" << (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
+			TEST_INFO("    min=" << (float((perfo.getMinProcessing().count()*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
+			TEST_INFO("    max=" << (float((perfo.getMaxProcessing().count()*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
+			TEST_INFO("    avg=" << (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
 		}
 		etk::FSNodeWriteAllDataType<int16_t>(outputName, output);
 	}
