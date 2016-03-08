@@ -8,7 +8,7 @@
 
 
 int32_t audio::algo::speex::getLogId() {
-	static int32_t g_val = etk::log::registerInstance("audio-algo-speex");
+	static int32_t g_val = elog::registerInstance("audio-algo-speex");
 	return g_val;
 }
 

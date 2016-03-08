@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <etk/log.h>
+#include <elog/log.h>
 
 namespace audio {
 	namespace algo {
@@ -15,7 +15,7 @@ namespace audio {
 	}
 }
 
-#define AA_SPEEX_BASE(info,data) TK_LOG_BASE(audio::algo::speex::getLogId(),info,data)
+#define AA_SPEEX_BASE(info,data) ELOG_BASE(audio::algo::speex::getLogId(),info,data)
 
 #define AA_SPEEX_PRINT(data)         AA_SPEEX_BASE(-1, data)
 #define AA_SPEEX_CRITICAL(data)      AA_SPEEX_BASE(1, data)

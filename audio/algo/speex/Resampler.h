@@ -49,7 +49,7 @@ namespace audio {
 					 */
 					virtual void process(void* _output, size_t& _nbChunkOut, const void* _input, size_t _nbChunk);
 				protected:
-					std11::shared_ptr<ResamplerPrivate> m_private; // private data.
+					std::shared_ptr<ResamplerPrivate> m_private; // private data.
 			};
 		}
 	}
