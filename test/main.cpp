@@ -11,9 +11,6 @@
 #include <chrono>
 
 #include <unistd.h>
-#undef __class__
-#define __class__ "test"
-
 
 class Performance {
 	private:

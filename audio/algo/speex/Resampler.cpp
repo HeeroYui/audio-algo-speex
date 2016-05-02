@@ -12,8 +12,6 @@
 	#include <speex/speex_resampler.h>
 #endif
 
-#undef __class__
-#define __class__ "algo::speex::ResamplerPrivate"
 namespace audio {
 	namespace algo {
 		namespace speex {
@@ -113,8 +111,6 @@ namespace audio {
 	}
 }
 
-#undef __class__
-#define __class__ "algo::speex::Resampler"
 
 audio::algo::speex::Resampler::Resampler() {
 	
