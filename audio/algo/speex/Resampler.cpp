@@ -122,7 +122,7 @@ audio::algo::speex::Resampler::~Resampler() {
 
 void audio::algo::speex::Resampler::init(int8_t _nbChannel, float _inputSampleRate, float _outputSampleRate, int8_t _quality, enum audio::format _format) {
 	m_private.reset();
-	m_private = std::make_shared<audio::algo::speex::ResamplerPrivate>(_nbChannel, _inputSampleRate, _outputSampleRate, _quality, _format);
+	m_private = ememory::makeShared<audio::algo::speex::ResamplerPrivate>(_nbChannel, _inputSampleRate, _outputSampleRate, _quality, _format);
 }
 
 std::vector<enum audio::format> audio::algo::speex::Resampler::getSupportedFormat() {

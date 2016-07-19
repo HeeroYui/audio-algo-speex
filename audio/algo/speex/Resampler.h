@@ -8,7 +8,7 @@
 #include <etk/types.h>
 #include <audio/format.h>
 #include <chrono>
-#include <memory>
+#include <ememory/memory.h>
 #include <vector>
 
 namespace audio {
@@ -49,7 +49,7 @@ namespace audio {
 					 */
 					virtual void process(void* _output, size_t& _nbChunkOut, const void* _input, size_t _nbChunk);
 				protected:
-					std::shared_ptr<ResamplerPrivate> m_private; // private data.
+					ememory::SharedPtr<ResamplerPrivate> m_private; // private data.
 			};
 		}
 	}
