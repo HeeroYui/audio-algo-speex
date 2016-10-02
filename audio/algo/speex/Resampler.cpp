@@ -5,11 +5,11 @@
  */
 
 
-#include <audio/algo/speex/Resampler.h>
-#include <audio/algo/speex/debug.h>
+#include <audio/algo/speex/Resampler.hpp>
+#include <audio/algo/speex/debug.hpp>
 #include <cmath>
 #ifdef HAVE_SPEEX_DSP
-	#include <speex/speex_resampler.h>
+	#include <speex/speex_resampler.hpp>
 #endif
 
 namespace audio {

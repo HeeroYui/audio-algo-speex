@@ -31,7 +31,7 @@ def create(target, module_name):
 		'audio/algo/speex/Resampler.cpp'
 		])
 	my_module.add_header_file([
-		'audio/algo/speex/Resampler.h'
+		'audio/algo/speex/Resampler.hpp'
 		])
 	my_module.add_depend(['etk', 'audio'])
 	my_module.add_optionnal_depend('speex-dsp', ["c++", "-DHAVE_SPEEX_DSP"])

@@ -5,10 +5,10 @@
  */
 #pragma once
 
-#include <etk/types.h>
-#include <audio/format.h>
+#include <etk/types.hpp>
+#include <audio/format.hpp>
 #include <chrono>
-#include <ememory/memory.h>
+#include <ememory/memory.hpp>
 #include <vector>
 
 namespace audio {
