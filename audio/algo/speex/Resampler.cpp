@@ -9,7 +9,7 @@
 #include <audio/algo/speex/debug.hpp>
 #include <cmath>
 #ifdef HAVE_SPEEX_DSP
-	#include <speex/speex_resampler.hpp>
+	#include <speex/speex_resampler.h>
 #endif
 
 namespace audio {
