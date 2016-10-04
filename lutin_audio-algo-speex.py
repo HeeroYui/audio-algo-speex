@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import lutin.module as module
+import lutin.debug as debug
 import lutin.tools as tools
 
 
@@ -24,19 +24,21 @@ def get_maintainer():
 def get_version():
 	return "version.txt"
 
-def create(target, module_name):
-	my_module = module.Module(__file__, module_name, get_type())
+def configure(target, my_module):
 	my_module.add_src_file([
-		'audio/algo/speex/debug.cpp',
-		'audio/algo/speex/Resampler.cpp'
-		])
+	    'audio/algo/speex/debug.cpp',
+	    'audio/algo/speex/Resampler.cpp'
+	    ])
 	my_module.add_header_file([
-		'audio/algo/speex/Resampler.hpp'
-		])
-	my_module.add_depend(['etk', 'audio'])
+	    'audio/algo/speex/Resampler.hpp'
+	    ])
+	my_module.add_depend([
+	    'etk',
+	    'audio'
+	    ])
 	my_module.add_optionnal_depend('speex-dsp', ["c++", "-DHAVE_SPEEX_DSP"])
-	my_module.add_path(tools.get_current_path(__file__))
-	return my_module
+	my_module.add_path(".")
+	return True
 
 
 
