@@ -125,15 +125,15 @@ void audio::algo::speex::Resampler::init(int8_t _nbChannel, float _inputSampleRa
 	m_private = ememory::makeShared<audio::algo::speex::ResamplerPrivate>(_nbChannel, _inputSampleRate, _outputSampleRate, _quality, _format);
 }
 
-std::vector<enum audio::format> audio::algo::speex::Resampler::getSupportedFormat() {
-	std::vector<enum audio::format> out = getNativeSupportedFormat();
+etk::Vector<enum audio::format> audio::algo::speex::Resampler::getSupportedFormat() {
+	etk::Vector<enum audio::format> out = getNativeSupportedFormat();
 	return out;
 }
 
-std::vector<enum audio::format> audio::algo::speex::Resampler::getNativeSupportedFormat() {
-	std::vector<enum audio::format> out;
-	out.push_back(audio::format_float);
-	out.push_back(audio::format_int16);
+etk::Vector<enum audio::format> audio::algo::speex::Resampler::getNativeSupportedFormat() {
+	etk::Vector<enum audio::format> out;
+	out.pushBack(audio::format_float);
+	out.pushBack(audio::format_int16);
 	return out;
 }
 

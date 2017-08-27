@@ -9,7 +9,7 @@
 #include <audio/format.hpp>
 #include <chrono>
 #include <ememory/memory.hpp>
-#include <vector>
+#include <etk/Vector.hpp>
 
 namespace audio {
 	namespace algo {
@@ -33,12 +33,12 @@ namespace audio {
 					 * @brief Get list of format suported in input.
 					 * @return list of supported format
 					 */
-					virtual std::vector<enum audio::format> getSupportedFormat();
+					virtual etk::Vector<enum audio::format> getSupportedFormat();
 					/**
 					 * @brief Get list of algorithm format suported. No format convertion.
 					 * @return list of supported format
 					 */
-					virtual std::vector<enum audio::format> getNativeSupportedFormat();
+					virtual etk::Vector<enum audio::format> getNativeSupportedFormat();
 					/**
 					 * @brief Main input algo process.
 					 * @param[in,out] _output Output data.
