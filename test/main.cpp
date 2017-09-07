@@ -9,7 +9,7 @@
 #include <audio/algo/speex/Resampler.hpp>
 #include <etk/os/FSNode.hpp>
 #include <chrono>
-#include <thread>
+#include <ethread/Thread.hpp>
 
 
 
