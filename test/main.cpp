@@ -83,7 +83,7 @@ float performanceResamplerStepFloat(float _sampleRateIn, float _sampleRateOut, i
 		size_t sizeOut = output.size();
 		algo.process(&output[0], sizeOut, &input[0], input.size());
 		perfo.toc();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		ethread::sleepMilliSeconds((1));
 	}
 	TEST_INFO("    blockSize=" << input.size() << " sample");
 	TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
@@ -123,7 +123,7 @@ float performanceResamplerStepI16(float _sampleRateIn, float _sampleRateOut, int
 		size_t sizeOut = output.size();
 		algo.process(&output[0], sizeOut, &input[0], input.size());
 		perfo.toc();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		ethread::sleepMilliSeconds((1));
 	}
 	TEST_INFO("    blockSize=" << input.size() << " sample");
 	TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
@@ -260,7 +260,7 @@ int main(int _argc, const char** _argv) {
 			algo.process(&output[outputPosition], availlableSize, &inputData[iii*blockSize], blockSize);
 			if (perf == true) {
 				perfo.toc();
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
+				ethread::sleepMilliSeconds((1));
 			}
 			outputPosition += availlableSize*nbChan;
 		}
