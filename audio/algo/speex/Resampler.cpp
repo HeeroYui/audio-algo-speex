@@ -24,13 +24,13 @@ namespace audio {
 				public:
 					ResamplerPrivate(int8_t _nbChannel, float _inputSampleRate, float _outputSampleRate, int8_t _quality, enum audio::format _format) :
 					  #ifdef HAVE_SPEEX_DSP
-					    m_speexResampler(nullptr),
+					    m_speexResampler(null),
 					  #endif
 					  m_format(_format) {
 						#ifdef HAVE_SPEEX_DSP
-							if (m_speexResampler != nullptr) {
+							if (m_speexResampler != null) {
 								speex_resampler_destroy(m_speexResampler);
-								m_speexResampler = nullptr;
+								m_speexResampler = null;
 							}
 							AA_SPEEX_DEBUG("Create resampler for : " << _inputSampleRate << " to " << _outputSampleRate);
 							int err = 0;
@@ -45,9 +45,9 @@ namespace audio {
 				
 				~ResamplerPrivate() {
 					#ifdef HAVE_SPEEX_DSP
-						if (m_speexResampler != nullptr) {
+						if (m_speexResampler != null) {
 							speex_resampler_destroy(m_speexResampler);
-							m_speexResampler = nullptr;
+							m_speexResampler = null;
 						}
 					#endif
 				}
@@ -138,7 +138,7 @@ etk::Vector<enum audio::format> audio::algo::speex::Resampler::getNativeSupporte
 }
 
 void audio::algo::speex::Resampler::process(void* _output, size_t& _nbChunkOut, const void* _input, size_t _nbChunk) {
-	if (m_private == nullptr) {
+	if (m_private == null) {
 		AA_SPEEX_ERROR("Algo is not initialized...");
 	}
 	m_private->process(_output, _nbChunkOut, _input, _nbChunk);

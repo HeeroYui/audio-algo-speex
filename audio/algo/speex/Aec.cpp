@@ -18,8 +18,8 @@ namespace audio {
 		namespace speex {
 			class AecPrivate {
 				private:
-					SpeexEchoState* m_speexEchoState = nullptr;
-					SpeexPreprocessState* m_speexPreprocessState = nullptr;
+					SpeexEchoState* m_speexEchoState = null;
+					SpeexPreprocessState* m_speexPreprocessState = null;
 					enum audio::format m_format;
 					float m_sampleRate;
 					int8_t m_nbChannel;
@@ -65,7 +65,7 @@ namespace audio {
 						                                            );
 						*/
 						m_speexEchoState = speex_echo_state_init(m_frameSize, calculateBlockSize(m_sampleRate,filterSizeMs));//(m_sampleRate*filterSizeMs)/1000);
-						if (m_speexEchoState == nullptr) {
+						if (m_speexEchoState == null) {
 							AA_SPEEX_ERROR("Can not intanciate speex handle");
 							return;
 						}
@@ -112,11 +112,11 @@ namespace audio {
 					/* TODO : Check this leak ...
 					if (m_speexPreprocessState) {
 						speex_preprocess_state_destroy(m_speexPreprocessState);
-						m_speexPreprocessState = nullptr;
+						m_speexPreprocessState = null;
 					}
 					if (m_speexEchoState) {
 						speex_echo_state_destroy(m_speexEchoState);
-						m_speexEchoState = nullptr;
+						m_speexEchoState = null;
 					}
 					*/
 				}
@@ -130,7 +130,7 @@ namespace audio {
 				 * @param[in] _nbChannel Number of channel in the stream.
 				 */
 				void process(void* _output, const void* _input, const void* _inputFeedback, size_t _nbChunk) {
-					if (m_speexEchoState == nullptr) {
+					if (m_speexEchoState == null) {
 						AA_SPEEX_ERROR("speex handle is not initialize ==> can not process");
 						return;
 					}
@@ -139,7 +139,7 @@ namespace audio {
 							// process APC
 							speex_echo_cancellation(m_speexEchoState, (const spx_int16_t*)_input, (const spx_int16_t*)_inputFeedback, (spx_int16_t*)_output);
 							// apply NR after AEC
-							if (m_speexPreprocessState != nullptr) {
+							if (m_speexPreprocessState != null) {
 								speex_preprocess_run(m_speexPreprocessState, (spx_int16_t*) _output);
 							}
 							return;
@@ -184,14 +184,14 @@ etk::Vector<enum audio::format> audio::algo::speex::Aec::getNativeSupportedForma
 }
 
 void audio::algo::speex::Aec::process(void* _output, const void* _input, const void* _inputFeedback, size_t _nbChunk) {
-	if (m_private == nullptr) {
+	if (m_private == null) {
 		AA_SPEEX_ERROR("Algo is not initialized...");
 	}
 	m_private->process(_output, _input, _inputFeedback, _nbChunk);
 }
 
 int32_t audio::algo::speex::Aec::getOptimalFrameSize() {
-	if (m_private == nullptr) {
+	if (m_private == null) {
 		AA_SPEEX_ERROR("Algo is not initialized...");
 		return 32;
 	}
