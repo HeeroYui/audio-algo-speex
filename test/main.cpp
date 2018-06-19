@@ -170,10 +170,71 @@ void performanceResampler() {
 	
 }
 
+etk::Vector<int16_t> loadDataI16(etk::String _fileName, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
+	TEST_INFO("Read : '" << _fileName << "'");
+	etk::Vector<int16_t> out;
+	int32_t offset = 0;
+	if (etk::end_with(_fileName, ".wav") == true) {
+		// remove the first 44 bytes
+		offset = 44;
+	}
+	for (int32_t iii=0; iii<_delaySample; ++iii) {
+		out.pushBack(0);
+	}
+	if (_formatFileInteger16 == true) {
+		etk::Vector<int16_t> tmpData = etk::FSNodeReadAllDataType<int16_t>(_fileName, offset);
+		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
+			out.pushBack(tmpData[iii+_selectChannel]);
+		}
+	} else {
+		etk::Vector<float> tmpData = etk::FSNodeReadAllDataType<float>(_fileName, offset);
+		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
+			double val = double(tmpData[iii+_selectChannel])*32768.0;
+			if (val >= 32767.0) {
+				out.pushBack(32767);
+			} else if (val <= -32768.0) {
+				out.pushBack(-32768);
+			} else {
+				out.pushBack(int16_t(val));
+			}
+		}
+	}
+	TEST_INFO("    " << out.size() << " samples");
+	return out;
+}
+
+
+etk::Vector<float> loadDataFloat(etk::String _fileName, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
+	TEST_INFO("Read : '" << _fileName << "'");
+	etk::Vector<float> out;
+	int32_t offset = 0;
+	if (etk::end_with(_fileName, ".wav") == true) {
+		// remove the first 44 bytes
+		offset = 44;
+	}
+	for (int32_t iii=0; iii<_delaySample; ++iii) {
+		out.pushBack(0.0);
+	}
+	if (_formatFileInteger16 == true) {
+		etk::Vector<int16_t> tmpData = etk::FSNodeReadAllDataType<int16_t>(_fileName, offset);
+		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
+			out.pushBack(double(tmpData[iii+_selectChannel])/32768.0);
+		}
+	} else {
+		etk::Vector<float> tmpData = etk::FSNodeReadAllDataType<float>(_fileName, offset);
+		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
+			out.pushBack(tmpData[iii+_selectChannel]);
+		}
+	}
+	TEST_INFO("    " << out.size() << " samples");
+	return out;
+}
+
 int main(int _argc, const char** _argv) {
 	// the only one init for etk:
 	etk::init(_argc, _argv);
 	etk::String inputName = "";
+	etk::String feedbackName = "";
 	etk::String outputName = "output.raw";
 	bool performance = false;
 	bool perf = false;
@@ -182,6 +243,14 @@ int main(int _argc, const char** _argv) {
 	int32_t nbChan = 1;
 	int32_t quality = 4;
 	etk::String test = "";
+	bool formatFileInteger16 = true;
+	int32_t inputNumberChannel = 1;
+	int32_t inputSelectChannel = 0;
+	int32_t inputSampleDelay = 0;
+	int32_t feedbackNumberChannel = 1;
+	int32_t feedbackSelectChannel = 0;
+	int32_t feedbackSampleDelay = 0;
+	
 	for (int32_t iii=0; iii<_argc ; ++iii) {
 		etk::String data = _argv[iii];
 		if (etk::start_with(data,"--in=")) {
@@ -195,34 +264,94 @@ int main(int _argc, const char** _argv) {
 		} else if (etk::start_with(data,"--test=")) {
 			data = &data[7];
 			sampleRateIn = etk::string_to_int32_t(data);
+		} else if (etk::start_with(data,"--format=")) {
+			if (data == "--format=i16") {
+				formatFileInteger16 = true;
+			} else if (data == "--format=float") {
+				formatFileInteger16 = false;
+			} else {
+				TEST_CRITICAL("unsuported format");
+			}
+		} else if (etk::start_with(data,"--in-filter=")) {
+			etk::String tmpData = &data[12];
+			inputNumberChannel = tmpData.size();
+			for (int32_t iii = 0; iii< tmpData.size(); ++iii) {
+				if (tmpData[iii] == '1') {
+					inputSelectChannel = iii;
+					TEST_INFO("SELECT input channel : " << inputNumberChannel+1 << " / " << tmpData.size());
+					break;
+				}
+			}
 		} else if (etk::start_with(data,"--sample-rate-in=")) {
 			data = &data[17];
 			sampleRateIn = etk::string_to_int32_t(data);
-		} else if (etk::start_with(data,"--sample-rate-out=")) {
+		// ****************************************************
+		// **  RESAMPLING section
+		// ****************************************************
+		} else if (    test == "RESAMPLING"
+		            && etk::start_with(data,"--sample-rate-out=")) {
 			data = &data[18];
 			sampleRateOut = etk::string_to_int32_t(data);
-		} else if (etk::start_with(data,"--nb=")) {
+		} else if (    test == "RESAMPLING"
+		            && etk::start_with(data,"--nb=")) {
 			data = &data[5];
 			nbChan = etk::string_to_int32_t(data);
-		} else if (etk::start_with(data,"--quality=")) {
+		} else if (    test == "RESAMPLING"
+		            && etk::start_with(data,"--quality=")) {
 			data = &data[10];
 			quality = etk::string_to_int32_t(data);
+		// ****************************************************
+		// **  AEC section
+		// ****************************************************
+		} else if (    test == "AEC"
+		            && etk::start_with(data,"--fb-filter=")) {
+			etk::String tmpData = &data[12];
+			feedbackNumberChannel = tmpData.size();
+			for (int32_t iii = 0; iii< tmpData.size(); ++iii) {
+				if (tmpData[iii] == '1') {
+					feedbackSelectChannel = iii;
+					TEST_INFO("SELECT FB channel : " << feedbackSelectChannel+1 << " / " << tmpData.size());
+					break;
+				}
+			}
+		} else if (    test == "AEC"
+		            && etk::start_with(data,"--fb=")) {
+			feedbackName = &data[5];
+		} else if (    test == "AEC"
+		            && etk::start_with(data,"--fb-delay=")) {
+			data = &data[11];
+			feedbackSampleDelay = etk::string_to_int32_t(data);
+		} else if (    test == "AEC"
+		            && etk::start_with(data,"--in-delay=")) {
+			data = &data[11];
+			inputSampleDelay = etk::string_to_int32_t(data);
 		} else if (    data == "-h"
 		            || data == "--help") {
 			TEST_PRINT("Help : ");
 			TEST_PRINT("    ./xxx --fb=file.raw --mic=file.raw");
 			TEST_PRINT("        --in=YYY.raw            input file");
+			TEST_PRINT("        --in-filter=xxx         Select the channel desired in the input stream (n*0 for each channel and 1 for the selected one. ex: 4 channel, secect the third==> 0010) [default 1]");
+			TEST_PRINT("        --sample-rate-in=XXXX   Input signal sample rate (default 48000)");
 			TEST_PRINT("        --out=zzz.raw           output file");
+			TEST_PRINT("        --format=xxx            file Format : i16/float (default i16)");
 			TEST_PRINT("        --performance           Generate signal to force algo to maximum process time");
 			TEST_PRINT("        --perf                  Enable performence test (little slower but real performence test)");
 			TEST_PRINT("        --test=XXXX             some test availlable ...");
 			TEST_PRINT("            RESAMPLING          Test resampling data 16 bit mode");
-			TEST_PRINT("                --sample-rate-in=XXXX   Input signal sample rate (default 48000)");
 			TEST_PRINT("                --sample-rate-out=XXXX  Output signal sample rate (default 48000)");
 			TEST_PRINT("                --quality=XX            Resampling quality [0..10] (default 4)");
 			TEST_PRINT("                --nb=XX                 Number of channel in the file (default 1)");
+			TEST_PRINT("            AEC                 Test AEC (SPEEX AEC is in 16 bits)");
+			TEST_PRINT("                --fb=XXXX.raw           Input Feedback file");
+			TEST_PRINT("                --fb-filter=xxx         Select the chanel desired in the input stream (same as --in-filter)");
+			TEST_PRINT("                --fb-delay=xxx          dalay in sample in the signal feedback (default 0)");
+			TEST_PRINT("                --in-delay=xxx          dalay in sample in the signal input (default 0)");
+			TEST_PRINT("    example: ");
+			TEST_PRINT("        ./XXX --test=AEC --fb=aaa_input.wav --in=aaa_input.wav --in-sample-rate=16000 --fb-filter=01 --in-filter=10 --format=i16 --in-delay=64");
 			
 			exit(0);
+		} else {
+			TEST_CRITICAL("unknow parameter : '" << data << "'");
 		}
 	}
 	// PERFORMANCE test only ....
@@ -237,7 +366,7 @@ int main(int _argc, const char** _argv) {
 			exit(-1);
 		}
 		TEST_INFO("Read input:");
-		etk::Vector<int16_t> inputData = etk::FSNodeReadAllDataType<int16_t>(inputName);
+		etk::Vector<int16_t> inputData = loadDataI16(inputName, inputNumberChannel, inputSelectChannel, formatFileInteger16, inputSampleDelay);
 		TEST_INFO("    " << inputData.size() << " samples");
 		// resize output :
 		etk::Vector<int16_t> output;
@@ -262,7 +391,7 @@ int main(int _argc, const char** _argv) {
 			algo.process(&output[outputPosition], availlableSize, &inputData[iii*blockSize], blockSize);
 			if (perf == true) {
 				perfo.toc();
-				ethread::sleepMilliSeconds((1));
+				ethread::sleepMilliSeconds(1);
 			}
 			outputPosition += availlableSize*nbChan;
 		}
@@ -277,8 +406,59 @@ int main(int _argc, const char** _argv) {
 			TEST_INFO("    max=" << (float((perfo.getMaxProcessing().get()*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
 			TEST_INFO("    avg=" << (float(((perfo.getTotalTimeProcessing().get()/perfo.getTotalIteration())*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
 		}
+		TEST_PRINT("Store in file : '" << outputName << "' size = " << output.size());
+		etk::FSNodeWriteAllDataType<int16_t>(outputName, output);
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	} else if (test == "AEC") {
+		// process in chunk of XXX samples represent 10 ms of DATA ==> this is webRTC ...
+		int32_t blockSize = 32;
+		etk::Vector<int16_t> inputData = loadDataI16(inputName, inputNumberChannel, inputSelectChannel, formatFileInteger16, inputSampleDelay);
+		etk::Vector<int16_t> feedbackData = loadDataI16(feedbackName, feedbackNumberChannel, feedbackSelectChannel, formatFileInteger16, feedbackSampleDelay);
+		//etk::FSNodeWriteAllDataType<int16_t>("bbb_input_I16_1c.raw", inputData);
+		//etk::FSNodeWriteAllDataType<int16_t>("bbb_feedback_I16_1c.raw", feedbackData);
+		// resize output :
+		etk::Vector<int16_t> output;
+		output.resize(inputData.size(), 0);
+		Performance perfo;
+		{
+			audio::algo::speex::Aec algo;
+			algo.init(1, sampleRateIn, audio::format_int16);
+			blockSize = algo.getOptimalFrameSize();
+			
+			int32_t lastPourcent = -1;
+			for (int32_t iii=0; iii<output.size()/blockSize; ++iii) {
+				if (lastPourcent != 100*iii / (output.size()/blockSize)) {
+					lastPourcent = 100*iii / (output.size()/blockSize);
+					TEST_INFO("Process : " << iii*blockSize << "/" << int32_t(output.size()/blockSize)*blockSize << " " << lastPourcent << "/100");
+				} else {
+					TEST_VERBOSE("Process : " << iii*blockSize << "/" << int32_t(output.size()/blockSize)*blockSize);
+				}
+				perfo.tic();
+				algo.process(&output[iii*blockSize], &inputData[iii*blockSize], &feedbackData[iii*blockSize], blockSize);
+				if (perf == true) {
+					perfo.toc();
+					ethread::sleepMilliSeconds(1);
+				}
+			}
+		}
+		TEST_PRINT("Process done");
+		if (perf == true) {
+			TEST_PRINT("Performance Result: ");
+			TEST_INFO("    blockSize=" << blockSize << " sample");
+			TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
+			                                  << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << "ns < "
+			                                  << perfo.getMaxProcessing().count() << "ns ");
+			float avg = (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRateIn)/double(blockSize))/1000000000.0)*100.0;
+			TEST_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "% < "
+			                                  << avg << "% < "
+			                                  << (float((perfo.getMaxProcessing().count()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "%");
+			TEST_PRINT("float : " << sampleRateIn << " : " << avg << "%");
+		}
+		TEST_PRINT("Store in file : '" << outputName << "' size = " << output.size());
 		etk::FSNodeWriteAllDataType<int16_t>(outputName, output);
 	}
-	
+	TEST_PRINT(" ***************************************");
+	TEST_PRINT(" **      APPLICATION FINISHED OK      **");
+	TEST_PRINT(" ***************************************");
 }
 

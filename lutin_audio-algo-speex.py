@@ -27,10 +27,12 @@ def get_version():
 def configure(target, my_module):
 	my_module.add_src_file([
 	    'audio/algo/speex/debug.cpp',
-	    'audio/algo/speex/Resampler.cpp'
+	    'audio/algo/speex/Resampler.cpp',
+	    'audio/algo/speex/Aec.cpp'
 	    ])
 	my_module.add_header_file([
-	    'audio/algo/speex/Resampler.hpp'
+	    'audio/algo/speex/Resampler.hpp',
+	    'audio/algo/speex/Aec.hpp'
 	    ])
 	my_module.add_depend([
 	    'etk',
