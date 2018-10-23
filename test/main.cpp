@@ -6,8 +6,9 @@
 
 #include <test-debug/debug.hpp>
 #include <etk/etk.hpp>
+#include <etk/uri/uri.hpp>
 #include <audio/algo/speex/Resampler.hpp>
-#include <etk/os/FSNode.hpp>
+#include <audio/algo/speex/Aec.hpp>
 #include <echrono/Steady.hpp>
 #include <ethread/Thread.hpp>
 
@@ -166,28 +167,29 @@ void performanceResampler() {
 		modeFloat = performanceResamplerStepFloat(48000, 8000, iii);
 		modeI16 = performanceResamplerStepI16(48000, 8000, iii);
 	}
-	
-	
 }
 
-etk::Vector<int16_t> loadDataI16(etk::String _fileName, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
-	TEST_INFO("Read : '" << _fileName << "'");
+etk::Vector<int16_t> loadDataI16(etk::Uri _uri, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
+	TEST_INFO("Read : '" << _uri << "'");
 	etk::Vector<int16_t> out;
-	int32_t offset = 0;
-	if (etk::end_with(_fileName, ".wav") == true) {
-		// remove the first 44 bytes
-		offset = 44;
-	}
 	for (int32_t iii=0; iii<_delaySample; ++iii) {
 		out.pushBack(0);
 	}
+	ememory::SharedPtr<etk::io::Interface> fileIO = etk::uri::get(_uri);
+	if (fileIO->open(etk::io::OpenMode::Read) == false) {
+		return out;
+	}
+	if (_uri.getPath().getExtention() == "wav") {
+		// remove the first 44 bytes
+		fileIO->seek(44, etk::io::SeekMode::Start);
+	}
 	if (_formatFileInteger16 == true) {
-		etk::Vector<int16_t> tmpData = etk::FSNodeReadAllDataType<int16_t>(_fileName, offset);
+		etk::Vector<int16_t> tmpData = fileIO->readAll<int16_t>();
 		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
 			out.pushBack(tmpData[iii+_selectChannel]);
 		}
 	} else {
-		etk::Vector<float> tmpData = etk::FSNodeReadAllDataType<float>(_fileName, offset);
+		etk::Vector<float> tmpData = fileIO->readAll<float>();
 		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
 			double val = double(tmpData[iii+_selectChannel])*32768.0;
 			if (val >= 32767.0) {
@@ -199,33 +201,38 @@ etk::Vector<int16_t> loadDataI16(etk::String _fileName, int32_t _nbChannel, int3
 			}
 		}
 	}
+	fileIO->close();
 	TEST_INFO("    " << out.size() << " samples");
 	return out;
 }
 
 
-etk::Vector<float> loadDataFloat(etk::String _fileName, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
-	TEST_INFO("Read : '" << _fileName << "'");
+etk::Vector<float> loadDataFloat(etk::Uri _uri, int32_t _nbChannel, int32_t _selectChannel, bool _formatFileInteger16, int32_t _delaySample = 0) {
+	TEST_INFO("Read : '" << _uri << "'");
 	etk::Vector<float> out;
-	int32_t offset = 0;
-	if (etk::end_with(_fileName, ".wav") == true) {
-		// remove the first 44 bytes
-		offset = 44;
-	}
 	for (int32_t iii=0; iii<_delaySample; ++iii) {
 		out.pushBack(0.0);
 	}
+	ememory::SharedPtr<etk::io::Interface> fileIO = etk::uri::get(_uri);
+	if (fileIO->open(etk::io::OpenMode::Read) == false) {
+		return out;
+	}
+	if (_uri.getPath().getExtention() == "wav") {
+		// remove the first 44 bytes
+		fileIO->seek(44, etk::io::SeekMode::Start);
+	}
 	if (_formatFileInteger16 == true) {
-		etk::Vector<int16_t> tmpData = etk::FSNodeReadAllDataType<int16_t>(_fileName, offset);
+		etk::Vector<int16_t> tmpData = fileIO->readAll<int16_t>();
 		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
 			out.pushBack(double(tmpData[iii+_selectChannel])/32768.0);
 		}
 	} else {
-		etk::Vector<float> tmpData = etk::FSNodeReadAllDataType<float>(_fileName, offset);
+		etk::Vector<float> tmpData = fileIO->readAll<float>();
 		for (int32_t iii=0; iii<tmpData.size(); iii+=_nbChannel) {
 			out.pushBack(tmpData[iii+_selectChannel]);
 		}
 	}
+	fileIO->close();
 	TEST_INFO("    " << out.size() << " samples");
 	return out;
 }
@@ -233,9 +240,9 @@ etk::Vector<float> loadDataFloat(etk::String _fileName, int32_t _nbChannel, int3
 int main(int _argc, const char** _argv) {
 	// the only one init for etk:
 	etk::init(_argc, _argv);
-	etk::String inputName = "";
-	etk::String feedbackName = "";
-	etk::String outputName = "output.raw";
+	etk::Path inputName = "";
+	etk::Path feedbackName = "";
+	etk::Path outputName = "output.raw";
 	bool performance = false;
 	bool perf = false;
 	int64_t sampleRateIn = 48000;
@@ -361,7 +368,7 @@ int main(int _argc, const char** _argv) {
 	}
 	if (test == "RESAMPLING") {
 		TEST_INFO("Start resampling test ... ");
-		if (inputName == "") {
+		if (inputName.isEmpty() == true) {
 			TEST_ERROR("Can not Process missing parameters...");
 			exit(-1);
 		}
@@ -407,7 +414,14 @@ int main(int _argc, const char** _argv) {
 			TEST_INFO("    avg=" << (float(((perfo.getTotalTimeProcessing().get()/perfo.getTotalIteration())*sampleRateIn)/blockSize)/1000000000.0)*100.0 << " %");
 		}
 		TEST_PRINT("Store in file : '" << outputName << "' size = " << output.size());
-		etk::FSNodeWriteAllDataType<int16_t>(outputName, output);
+		
+		
+		ememory::SharedPtr<etk::io::Interface> fileIO = etk::uri::get(outputName);
+		if (fileIO->open(etk::io::OpenMode::Write) == false) {
+			return -1;
+		}
+		fileIO->writeAll<int16_t>(output);
+		fileIO->close();
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	} else if (test == "AEC") {
 		// process in chunk of XXX samples represent 10 ms of DATA ==> this is webRTC ...
@@ -445,20 +459,26 @@ int main(int _argc, const char** _argv) {
 		if (perf == true) {
 			TEST_PRINT("Performance Result: ");
 			TEST_INFO("    blockSize=" << blockSize << " sample");
-			TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().count() << "ns < "
-			                                  << perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration() << "ns < "
-			                                  << perfo.getMaxProcessing().count() << "ns ");
-			float avg = (float(((perfo.getTotalTimeProcessing().count()/perfo.getTotalIteration())*sampleRateIn)/double(blockSize))/1000000000.0)*100.0;
-			TEST_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().count()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "% < "
+			TEST_INFO("    min < avg < max =" << perfo.getMinProcessing().get() << "ns < "
+			                                  << perfo.getTotalTimeProcessing().get()/perfo.getTotalIteration() << "ns < "
+			                                  << perfo.getMaxProcessing().get() << "ns ");
+			float avg = (float(((perfo.getTotalTimeProcessing().get()/perfo.getTotalIteration())*sampleRateIn)/double(blockSize))/1000000000.0)*100.0;
+			TEST_INFO("    min < avg < max= " << (float((perfo.getMinProcessing().get()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "% < "
 			                                  << avg << "% < "
-			                                  << (float((perfo.getMaxProcessing().count()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "%");
+			                                  << (float((perfo.getMaxProcessing().get()*sampleRateIn)/double(blockSize))/1000000000.0)*100.0 << "%");
 			TEST_PRINT("float : " << sampleRateIn << " : " << avg << "%");
 		}
 		TEST_PRINT("Store in file : '" << outputName << "' size = " << output.size());
-		etk::FSNodeWriteAllDataType<int16_t>(outputName, output);
+		ememory::SharedPtr<etk::io::Interface> fileIO = etk::uri::get(outputName);
+		if (fileIO->open(etk::io::OpenMode::Write) == false) {
+			return -1;
+		}
+		fileIO->writeAll<int16_t>(output);
+		fileIO->close();
 	}
 	TEST_PRINT(" ***************************************");
 	TEST_PRINT(" **      APPLICATION FINISHED OK      **");
 	TEST_PRINT(" ***************************************");
+	return 0;
 }
 
