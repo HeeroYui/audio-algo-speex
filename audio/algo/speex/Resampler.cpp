@@ -78,6 +78,7 @@ namespace audio {
 								break;
 							case audio::format_float:
 								{
+									AA_SPEEX_ERROR("RESAMPLE: " << _nbChunk << " ==> " << _nbChunkOut);
 									uint32_t nbChunkInput = _nbChunk;
 									uint32_t nbChunkOutput = _nbChunkOut;
 									int ret = speex_resampler_process_interleaved_float(m_speexResampler,
@@ -85,6 +86,7 @@ namespace audio {
 									                                                    &nbChunkInput,
 									                                                    reinterpret_cast<float*>(_output),
 									                                                    &nbChunkOutput);
+									AA_SPEEX_ERROR("RESAMPLE: " << nbChunkInput << " ==> " << nbChunkOutput << " DONE");
 									// Check all input and output ...
 									if (nbChunkInput != _nbChunk) {
 										AA_SPEEX_ERROR("inputSize (not all read ...) proceed=" << nbChunkInput << " requested=" << _nbChunk);
@@ -132,7 +134,7 @@ etk::Vector<enum audio::format> audio::algo::speex::Resampler::getSupportedForma
 
 etk::Vector<enum audio::format> audio::algo::speex::Resampler::getNativeSupportedFormat() {
 	etk::Vector<enum audio::format> out;
-	out.pushBack(audio::format_float);
+	//out.pushBack(audio::format_float); ==> sppex dsp only compille in fixpoint, of float ... not at the same time ...
 	out.pushBack(audio::format_int16);
 	return out;
 }
